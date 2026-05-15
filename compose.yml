@@ -1,0 +1,41 @@
+services:
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+
+    container_name: todoapp-dev
+
+    ports:
+      - '${APP_PORT:-3000}:3000'
+      - '${VITE_PORT:-5173}:5173'
+      - '${DEBUG_PORT:-9229}:9229'
+
+    environment:
+      NODE_ENV: development
+      DOCKER_ENV: 'true'
+
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: todoapp
+      POSTGRES_USER: todoapp
+      POSTGRES_PASSWORD: '${POSTGRES_PASSWORD:-todoapp_password}'
+
+      ALLOWED_ORIGINS: '${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5173}'
+
+    volumes:
+      - ./src:/app/src
+      - ./package.json:/app/package.json
+      - ./vite.config.ts:/app/vite.config.ts
+      - ./tailwind.config.js:/app/tailwind.config.js
+      - ./postcss.config.js:/app/postcss.config.js
+
+    restart: unless-stopped
+
+    networks:
+      - todoapp-network
+
+networks:
+  todoapp-network:
+    driver: bridge
